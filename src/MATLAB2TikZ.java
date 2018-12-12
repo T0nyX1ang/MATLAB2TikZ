@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import javax.imageio.ImageIO;
 
 @SuppressWarnings("serial")
 public class MATLAB2TikZ extends Frame implements ActionListener, FilenameFilter{
@@ -14,11 +15,14 @@ public class MATLAB2TikZ extends Frame implements ActionListener, FilenameFilter
 	}
 	private BufferedImage image;
 	private Menu fileMenu = new Menu("File");
+	private MenuItem fileImportPic = new MenuItem("Import");
 	private MenuItem fileTikZPreview = new MenuItem("Preview TikZ");
 	private MenuItem fileExit = new MenuItem("Exit");
 	public DrawImageWithCanvas diwc = new DrawImageWithCanvas();
 	public MATLAB2TikZ(){
 		super("MatLab to TikZ");
+		fileMenu.add(fileImportPic);
+		fileImportPic.addActionListener(this);
 		fileMenu.add(fileTikZPreview);
 		fileTikZPreview.addActionListener(this);
 		fileMenu.addSeparator();
@@ -37,6 +41,23 @@ public class MATLAB2TikZ extends Frame implements ActionListener, FilenameFilter
 	public void actionPerformed(ActionEvent ae) {
 		if (ae.getSource() == fileExit)
 			System.exit(0);
+		
+		else if (ae.getSource() == fileImportPic) {
+			try {
+				FileDialog fd = new FileDialog(this, "Open File", FileDialog.LOAD);
+				fd.setFile("*.png");
+				fd.setVisible(true);
+				if (fd.getFile() != null) {
+					File pic = new File(fd.getDirectory() + fd.getFile());
+					BufferedImage import_image = ImageIO.read(new FileInputStream(pic));
+					diwc.getImage(import_image);
+					diwc.repaint();
+				}
+			} catch (Exception e) {
+				System.out.println("Unknown error. " + e);
+			}
+		}
+		
 		else if (ae.getSource() == fileTikZPreview) {
 			try {
 				FileDialog fd = new FileDialog(this, "Open File", FileDialog.LOAD);

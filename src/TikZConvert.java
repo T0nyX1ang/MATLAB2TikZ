@@ -1,8 +1,6 @@
 import java.io.*;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import java.util.*;
-
 public class TikZConvert {
 	// This is a class designed to convert TikZ files to compilable LaTeX files.
 	
@@ -29,7 +27,7 @@ public class TikZConvert {
 			String texoptions = "%!TeX options = -shell-escape" + sep;
 			String documentclasses = "\\documentclass{article}" + sep;
 			String packages = "\\usepackage{tikz}" + sep;
-			String packagelibraries = "\\usetikzlibrary{external}" + sep;
+			String packagelibraries = "\\usetikzlibrary{external, datavisualization, fpu}" + sep;
 			String externalize = "\\tikzexternalize" + sep;
 			String start_document = "\\begin{document}" + sep;
 			String start_center = "\\begin{center}" + sep;
