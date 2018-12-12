@@ -1,9 +1,9 @@
-import java.awt.image.*;  
+import java.awt.image.*;
 
 public class PictureAlgorithms {
 	// These utilities are under development now. They are algorithms.
 	
-	public static int[][] getGray(BufferedImage image) {
+	public int[][] getGray(BufferedImage image) {
 		int width = image.getTileWidth();
 		int height = image.getHeight();
 		int[][] gray = new int[width][height];
@@ -20,7 +20,7 @@ public class PictureAlgorithms {
 		return gray;
 	}
 	
-	public static BufferedImage otsu(int[][] gray, int width, int height){
+	public BufferedImage otsu(int[][] gray, int width, int height){
 		int[] histData = new int[width * height];
 		// Calculate histogram
 		for (int i = 0; i < width; i++){
@@ -69,7 +69,7 @@ public class PictureAlgorithms {
 		return result;
 	}
 	
-	public static BufferedImage clearAxisTicks(int[][] gray, int width, int height) {
+	public BufferedImage clearAxisTicks(int[][] gray, int width, int height) {
 		// clear redundant axis pixels and tick pixels
 		// x, y axis
 		for (int i = 0; i < width; i++) {
@@ -138,7 +138,7 @@ public class PictureAlgorithms {
 		return result;
 	}
 	
-	public static BufferedImage hilditch(int[][] gray, int width, int height) {	
+	public BufferedImage hilditch(int[][] gray, int width, int height) {	
 		int[][] black = new int[width][height];
 		boolean[][] tag = new boolean[width][height];
 		int addTagNum = 1;
@@ -216,7 +216,7 @@ public class PictureAlgorithms {
 		return result;
 	}
 	
-	public static int detectConnectivity(int[] a) {
+	public int detectConnectivity(int[] a) {
 		int a0 = 1 - a[0];
 		int a1 = 1 - a[1];
 		int a2 = 1 - a[2];
@@ -230,7 +230,7 @@ public class PictureAlgorithms {
 		return size;
 	}
 
-	public static BufferedImage cropImage(BufferedImage bufferedImage, int startX, int endX, int startY, int endY) {
+	public BufferedImage cropImage(BufferedImage bufferedImage, int startX, int endX, int startY, int endY) {
 		int height = bufferedImage.getHeight();
 		int width = bufferedImage.getWidth();
 		if (startX == -1) {

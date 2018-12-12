@@ -59,6 +59,8 @@ public class TikZConvert {
 			System.err.println("Filename not assigned. " + npe);
 		} catch (FileNotFoundException fnfe) {
 			System.err.println("File not found. " + fnfe);
+		} catch (SecurityException se) {
+			System.err.println("Permission denied. " + se);
 		} catch (IOException e) {
 			System.err.println("Unknown error. " + e);
 		}
