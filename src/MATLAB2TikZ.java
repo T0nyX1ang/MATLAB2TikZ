@@ -1,28 +1,34 @@
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 @SuppressWarnings("serial")
-public class MATLAB2TikZ extends Frame implements ActionListener{
+public class MATLAB2TikZ extends JFrame implements ActionListener{
 	// This is the main class of the project.
-	
+
 	private class WindowCloser extends WindowAdapter {
 		public void windowClosing(WindowEvent we) {
-			System.exit(0);
+			int confirm = JOptionPane.showConfirmDialog(MATLAB2TikZ.this, "Do you really want to exit?", 
+														"Confirm exit", JOptionPane.YES_NO_OPTION);
+			if (confirm == 0)
+				System.exit(0);
 		}
 	}
+
 	private BufferedImage image;
-	private Menu fileMenu = new Menu("File");
-	private MenuItem fileImportPic = new MenuItem("Import");
-	private MenuItem fileGenTikZ = new MenuItem("Generate TikZ");
-	private MenuItem fileTikZPreview = new MenuItem("Preview TikZ");
-	private MenuItem fileExit = new MenuItem("Exit");
-	private Menu configMenu = new Menu("Settings");
-	private Menu helpMenu = new Menu("Help");
-	private MenuItem helpAbout = new MenuItem("About MatLab2TikZ");
-	private MenuItem helpProgram = new MenuItem("Help");
+	private JMenu fileMenu = new JMenu("File");
+	private JMenuItem fileImportPic = new JMenuItem("Import");
+	private JMenuItem fileGenTikZ = new JMenuItem("Generate TikZ");
+	private JMenuItem fileTikZPreview = new JMenuItem("Preview TikZ");
+	private JMenuItem fileExit = new JMenuItem("Exit");
+	private JMenu configMenu = new JMenu("Settings");
+	private JMenu helpMenu = new JMenu("Help");
+	private JMenuItem helpAbout = new JMenuItem("About MatLab2TikZ");
+	private JMenuItem helpProgram = new JMenuItem("Help");
 	public BufferedImage import_image = null;
 	public DrawImageWithCanvas diwc = new DrawImageWithCanvas();
 	public MATLAB2TikZ(){
@@ -40,28 +46,25 @@ public class MATLAB2TikZ extends Frame implements ActionListener{
 		helpAbout.addActionListener(this);
 		helpMenu.add(helpProgram);
 		helpProgram.addActionListener(this);
-		MenuBar menu = new MenuBar();
+		JMenuBar menu = new JMenuBar();
 		menu.add(fileMenu);
 		menu.add(configMenu);
 		menu.add(helpMenu);
-		setMenuBar(menu);
+		setJMenuBar(menu);
 		setLayout(new BorderLayout());
-		add("Center", diwc);
 		addWindowListener(new WindowCloser());
+		add("Center", diwc);
 		setSize(1080, 720);
 		setVisible(true);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 	}
 	
 	public void actionPerformed(ActionEvent ae) {
 		if (ae.getSource() == fileExit) {
-			ConfirmDialog exitDialog = new ConfirmDialog(this, "Confirm Exit", 
-														 "Do you really want to exit?", 2);
-			if (exitDialog.isOkay) {
-				exitDialog.dispose();
+			int confirm = JOptionPane.showConfirmDialog(this, "Do you really want to exit?", 
+														"Confirm exit", JOptionPane.YES_NO_OPTION);
+			if (confirm == 0)
 				System.exit(0);
-			}
-			else
-				exitDialog.dispose();
 		}
 		
 		else if (ae.getSource() == fileImportPic)
@@ -80,9 +83,7 @@ public class MATLAB2TikZ extends Frame implements ActionListener{
 								  "A program to convert MatLab(R) plots to TikZ codes." + sep +
 								  "Version: 0.1.0" + sep +
 								  "Author: Tony Xiang(tonyxfy@gmail.com)" + sep;
-			ConfirmDialog aboutDialog = new ConfirmDialog(this, "About MatLab2TikZ", 
-														  aboutContext);
-			aboutDialog.dispose();
+			JOptionPane.showMessageDialog(this, aboutContext, "About this program", JOptionPane.PLAIN_MESSAGE); 
 		}
 		
 		else if (ae.getSource() == helpProgram) {
@@ -96,19 +97,21 @@ public class MATLAB2TikZ extends Frame implements ActionListener{
 								 "Help Menu:" + sep +
 								 "About: About the program" + sep +
 								 "Help: Show program help" + sep;
-			ConfirmDialog helpDialog = new ConfirmDialog(this, "Help",
-														 helpContext);
-			helpDialog.dispose();
+			JOptionPane.showMessageDialog(this, helpContext, "Help", JOptionPane.PLAIN_MESSAGE);
 		}
 	}
 	
 	public void importPicture() {
 		try {
-			FileDialog fd = new FileDialog(this, "Open File", FileDialog.LOAD);
-			fd.setVisible(true);
-			if (fd.getFile() != null) {
-				File pic = new File(fd.getDirectory() + fd.getFile());
-				import_image = ImageIO.read(new FileInputStream(pic));
+			JFileChooser jfc = new JFileChooser();
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("Images(*.jpg, *.gif, *.bmp, *.png)",
+																		 "jpg", "gif", "bmp", "png");
+			jfc.setVisible(true);
+			jfc.setFileFilter(filter);
+			jfc.showOpenDialog(this);
+			File fileLoad = jfc.getSelectedFile();
+			if (fileLoad != null) {
+				import_image = ImageIO.read(new FileInputStream(fileLoad));
 				diwc.getImage(import_image);
 				diwc.repaint();
 			}
@@ -119,16 +122,19 @@ public class MATLAB2TikZ extends Frame implements ActionListener{
 	
 	public void previewTikZ() {
 		try {
-			FileDialog fd = new FileDialog(this, "Open File", FileDialog.LOAD);
-			fd.setFile("*.tikz");
-			fd.setVisible(true);
-			if (fd.getFile() != null) {
-				if (fd.getFile().endsWith(".tikz")) {
+			JFileChooser jfc = new JFileChooser("Open File");
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("TikZ Documents(*.tikz)",
+					 													 "tikz");
+			jfc.setVisible(true);
+			jfc.setFileFilter(filter);
+			jfc.showOpenDialog(this);
+			File fileLoad = jfc.getSelectedFile();
+			if (fileLoad != null) {
+				if (fileLoad.getName().endsWith(".tikz")) {
 					// Create file handler.
-					File file = new File(fd.getDirectory() + fd.getFile());
 					// Instantiate objects.
 					TikZConvert tcvt = new TikZConvert();
-					String filehash = tcvt.convert(file);
+					String filehash = tcvt.convert(fileLoad);
 					TeXCompiler tc = new TeXCompiler();
 					tc.compileTeX("xelatex", filehash);
 					PDF2PNG convert = new PDF2PNG();
@@ -141,7 +147,6 @@ public class MATLAB2TikZ extends Frame implements ActionListener{
 				else
 					System.err.println("File extension error.");
 			}
-			fd.dispose();
 		} catch (NullPointerException npe) {
 			System.err.println("File creation error. " + npe);
 		} catch (Exception e) {
