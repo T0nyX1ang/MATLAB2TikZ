@@ -13,12 +13,12 @@ public class PictureUtils extends PictureAlgorithms{
 	private int[] consecX;
 	private int[] consecY;
 	// Picture detailed characteristics
-	private BufferedImage xLabel = null;
-	private BufferedImage yLabel = null;
-	private BufferedImage xStepOrig = null;
-	private BufferedImage yStepOrig = null;
-	private BufferedImage MainDataOrig = null;
-	private BufferedImage MainData = null;
+	BufferedImage xLabel = null;
+	BufferedImage yLabel = null;
+	BufferedImage xStepOrig = null;
+	BufferedImage yStepOrig = null;
+	BufferedImage MainDataOrig = null;
+	BufferedImage MainData = null;
 	// Data detailed characteristics
 	private int originX = 0;
 	private int originY = 0;
@@ -279,13 +279,13 @@ public class PictureUtils extends PictureAlgorithms{
 		return dataString;
 	}
 	
-	public void generateTikZ(String dataString, 
-							 double xStart, double xStop, 
+	public void generateTikZ(double xStart, double xStop, 
 							 double yStart, double yStop,
-							 int xStep, int yStep,
+							 double xStep, double yStep,
 							 String xLabel, String yLabel,
 							 boolean isXGrid, boolean isYGrid,
-							 String filepath, String filename) {
+							 File file) {
+		dataString = getData(MainDataOrig, xStart, xStop, yStart, yStop);
 		String sep = System.lineSeparator();
 		// setting grids
 		String xGridOpen = "%";
@@ -330,9 +330,8 @@ public class PictureUtils extends PictureAlgorithms{
 		total = startTikZ + createData + axisConfig + xAxisConfig + yAxisConfig + visualizer 
 						  + dataConfig + data + endTikZ;
 		// write
-		FileWriter fw;
 		try {
-			fw = new FileWriter(filepath + File.separator + filename + ".tikz");
+			FileWriter fw = new FileWriter(file);
 			PrintWriter out = new PrintWriter(new BufferedWriter(fw));
 			out.println(total);
 			out.close();
