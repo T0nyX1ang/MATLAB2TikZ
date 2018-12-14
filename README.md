@@ -2,13 +2,21 @@
 This is an Java assignment which converts MATLAB plots to TikZ pictures.
 
 ## Features offered now:
-* Viewing TikZ files(\*.tikz) by adding something to it and compile it using pdflatex/xelatex.
 * Importing pictures.
+* Generating TikZ documents using the imported picture.
+* Viewing TikZ files(\*.tikz) by adding something to it and compile it using pdflatex/xelatex.
+* Automatically generation and preview mode.
 
 ## Dependecies:
 * LaTeX compiler: xelatex or pdflatex in your $PATH.
+* (Future) Tesseract-OCR: tesseract-ocr in your $PATH to enable word recognition.
 
 ## Update Notes:
+
+### Version 0.1.0
+* Basic structure of 2-d plots are constructed now.
+* Automatic mode enabled.
+* **NOTICE: You need to manually entering data because word recognition hasn't been developed now.**
 
 ### Version 0.0.9:
 * Get prepared for the program.
