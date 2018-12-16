@@ -141,21 +141,31 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 																		 "jpg", "gif", "bmp", "png");
 			jfc.setVisible(true);
 			jfc.setFileFilter(filter);
-			jfc.showOpenDialog(this);
-			File fileLoad = jfc.getSelectedFile();
+            jfc.setSelectedFile(new File(System.getProperty("user.dir")));
+            jfc.setMultiSelectionEnabled(false);
+			int confirm = jfc.showOpenDialog(this);
+			File fileLoad = null;
+			if (confirm == JOptionPane.OK_OPTION)
+				fileLoad = jfc.getSelectedFile();
+			else {
+				System.out.println("Import cancelled by user.");
+				return;
+			}
 			if (fileLoad != null) {
 				import_image = ImageIO.read(new FileInputStream(fileLoad));
 				diwc.getImage(import_image);
 				diwc.repaint();
+				autoModeFile = new File(fileLoad.getPath() + ".output.tikz");
 				if (autoMode) {
 					// automatic mode
-					autoModeFile = new File(fileLoad.getPath() + ".output.tikz");
 					generateTikZ();
 					previewTikZ();
 				}
 			}
+		} catch (FileNotFoundException fnfe) {
+			System.err.println("File not found error." + fnfe);
 		} catch (Exception e) {
-			System.out.println("Unknown error. " + e);
+			System.err.println("Unknown error. " + e);
 		}		
 	}
 	
@@ -175,9 +185,8 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 						 "tikz");
 				jfc.setVisible(true);
 				jfc.setFileFilter(filter);
-	            jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	            jfc.setMultiSelectionEnabled(false);
-	            jfc.setSelectedFile(new File("output.tikz"));
+	            jfc.setSelectedFile(autoModeFile);
 				int isSelected = jfc.showSaveDialog(this);
 				if (isSelected == JFileChooser.APPROVE_OPTION) {
 					fileSave = jfc.getSelectedFile();
@@ -209,14 +218,18 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 			wr.getYLabelString(pu.yLabel);
 			
 			// Using automatically generated data (PENDING)
-			xStart = wr.xStart;
-			xStop = wr.xStop;
-			xStep = wr.xStep;
-			yStart = wr.yStart;
-			yStop = wr.yStop;
-			yStep = wr.yStep;
+			if ((xStop == xStart) || (xStep == 0) || 
+				(yStop == yStart) || (yStep == 0) || 
+				(xLabel == null) || (yLabel == null)) {
+				xStart = wr.xStart;
+				xStop = wr.xStop;
+				xStep = wr.xStep;
+				yStart = wr.yStart;
+				yStop = wr.yStop;
+				yStep = wr.yStep;
+			}
 			
-			// Using user-input data
+			// Using user-input data (Forcibly override automatically generated data)
 			if ((xStop == xStart) || (xStep == 0) || 
 				(yStop == yStart) || (yStep == 0) || 
 				(xLabel == null) || (yLabel == null)) {
@@ -250,6 +263,8 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 						 													 "tikz");
 				jfc.setVisible(true);
 				jfc.setFileFilter(filter);
+				jfc.setSelectedFile(autoModeFile);
+	            jfc.setMultiSelectionEnabled(false);
 				jfc.showOpenDialog(this);
 				fileLoad = jfc.getSelectedFile();
 			} 
@@ -303,13 +318,12 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 	
 	public void generalConfig() {
 		GeneralConfig gc = new GeneralConfig(this, "General Config");
-		if (!gc.dataValidate)
+		if (!gc.dataValidate) {
+			System.out.println("General config cancelled.");
 			return;
-		else {
-			dpiValue = gc.dpiValue;
-			LaTeXCompiler = gc.LaTeXCompiler;
+		} else {
 			autoMode = gc.autoMode;	
-			if (autoMode) {
+			while (autoMode) {
 				String sep = System.lineSeparator();
 				int confirm = JOptionPane.showConfirmDialog(this, "Entering automatic mode will only require you to import the image." + sep +
 						"Your tikz file will be put in the SAME directory where your image is." + sep +
@@ -319,12 +333,21 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 						"Automatic Mode Confirm", JOptionPane.YES_NO_OPTION);
 				if (confirm == JOptionPane.YES_OPTION) {
 					gc.setVisible(false);
+					break;
 				} else {
 					autoMode = false;
 					gc.autoMode = false;
+					gc.autoList.setSelectedIndex(1);
 					gc.setVisible(true);
+					if (!gc.dataValidate) {
+						System.out.println("General config cancelled.");
+						return;
+					} else 
+						autoMode = gc.autoMode;
 				}
 			}
+			dpiValue = gc.dpiValue;
+			LaTeXCompiler = gc.LaTeXCompiler;
 			System.out.println("General config success.");
 		}
 	}

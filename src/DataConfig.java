@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.*;
@@ -13,22 +14,24 @@ public class DataConfig extends JDialog implements ActionListener{
 	}
 
 	// basic Dialog control.
+	int column = 15;
+	int row = 1;
 	private JLabel xStartLabel = new JLabel("The start number of x axis: ");
-	private JTextArea xStartInput = new JTextArea();
+	private JTextArea xStartInput = new JTextArea(row, column);
 	private JLabel xStopLabel = new JLabel("The stop number of x axis: ");
-	private JTextArea xStopInput = new JTextArea();
+	private JTextArea xStopInput = new JTextArea(row, column);
 	private JLabel xStepLabel = new JLabel("The step of x axis: ");
-	private JTextArea xStepInput = new JTextArea();
+	private JTextArea xStepInput = new JTextArea(row, column);
 	private JLabel xAxisLabel = new JLabel("The label of x axis: ");
-	private JTextArea xLabelInput = new JTextArea();
+	private JTextArea xLabelInput = new JTextArea(row, column);
 	private JLabel yStartLabel = new JLabel("The start number of y axis: ");
-	private JTextArea yStartInput = new JTextArea();
+	private JTextArea yStartInput = new JTextArea(row, column);
 	private JLabel yStopLabel = new JLabel("The stop number of y axis: ");
-	private JTextArea yStopInput = new JTextArea();
+	private JTextArea yStopInput = new JTextArea(row, column);
 	private JLabel yStepLabel = new JLabel("The step of y axis: ");
-	private JTextArea yStepInput = new JTextArea();
+	private JTextArea yStepInput = new JTextArea(row, column);
 	private JLabel yAxisLabel = new JLabel("The label of y axis: ");
-	private JTextArea yLabelInput = new JTextArea();
+	private JTextArea yLabelInput = new JTextArea(row, column);
 	private JButton okButton = new JButton("OK");
 	private JButton cancelButton = new JButton("cancel");
 	
@@ -86,25 +89,34 @@ public class DataConfig extends JDialog implements ActionListener{
 	}
 	
 	private void init() {
+		int thickness = 1;
 		JLabel help = new JLabel("You can make data settings here.");
 		JPanel settings = new JPanel();
-		settings.setLayout(new GridLayout(8, 2));
+		settings.setLayout(new GridLayout(8, 2, 10, 10));
 		settings.add(xStartLabel);
 		settings.add(xStartInput);
+		xStartInput.setBorder(BorderFactory.createLineBorder(Color.black, thickness));
 		settings.add(xStopLabel);
 		settings.add(xStopInput);
+		xStopInput.setBorder(BorderFactory.createLineBorder(Color.black, thickness));
 		settings.add(xStepLabel);
 		settings.add(xStepInput);
+		xStepInput.setBorder(BorderFactory.createLineBorder(Color.black, thickness));
 		settings.add(xAxisLabel);
 		settings.add(xLabelInput);
+		xLabelInput.setBorder(BorderFactory.createLineBorder(Color.black, thickness));
 		settings.add(yStartLabel);
 		settings.add(yStartInput);
+		yStartInput.setBorder(BorderFactory.createLineBorder(Color.black, thickness));
 		settings.add(yStopLabel);
 		settings.add(yStopInput);
+		yStopInput.setBorder(BorderFactory.createLineBorder(Color.black, thickness));
 		settings.add(yStepLabel);
 		settings.add(yStepInput);
+		yStepInput.setBorder(BorderFactory.createLineBorder(Color.black, thickness));
 		settings.add(yAxisLabel);
-		settings.add(yLabelInput);		
+		settings.add(yLabelInput);
+		yLabelInput.setBorder(BorderFactory.createLineBorder(Color.black, thickness));
 		
 		JPanel buttons = new JPanel();
 		buttons.setLayout(new FlowLayout());

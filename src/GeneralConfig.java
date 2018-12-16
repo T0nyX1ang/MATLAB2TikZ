@@ -8,6 +8,7 @@ import javax.swing.*;
 public class GeneralConfig extends JDialog implements ActionListener, ItemListener{
 	private class WindowCloser extends WindowAdapter {
 		public void windowClosing(WindowEvent we) {
+			dataValidate = false;
 			GeneralConfig.this.setVisible(false);
 		}
 	}
@@ -16,12 +17,16 @@ public class GeneralConfig extends JDialog implements ActionListener, ItemListen
 	String[] compilerData = new String[] {"xelatex", "pdflatex"};
 	String[] autoData = new String[] {"Automatically", "Manually"};
 	Integer[] dpiData = new Integer[] {150, 180, 210, 240, 270, 300};
+	
 	private JLabel dpiLabel = new JLabel("DPI Value");
-	private JComboBox<Integer> dpiList = new JComboBox<Integer>(dpiData);
+	JComboBox<Integer> dpiList = new JComboBox<Integer>(dpiData);
+	
 	private JLabel compilerLabel = new JLabel("LaTeX Compiler");
-	private JComboBox<String> compilerList = new JComboBox<String>(compilerData);
+	JComboBox<String> compilerList = new JComboBox<String>(compilerData);
+	
 	private JLabel autoLabel = new JLabel("Automatic Mode");
-	private JComboBox<String> autoList = new JComboBox<String>(autoData);
+	JComboBox<String> autoList = new JComboBox<String>(autoData);
+	
 	private JButton okButton = new JButton("OK");
 	private JButton cancelButton = new JButton("cancel");
 	
@@ -60,6 +65,7 @@ public class GeneralConfig extends JDialog implements ActionListener, ItemListen
 			autoMode = tempAutoMode;
 			GeneralConfig.this.setVisible(false);
 		} else if (ae.getSource() == cancelButton) {
+			dataValidate = false;
 			GeneralConfig.this.setVisible(false);
 		}
 	}
@@ -81,7 +87,7 @@ public class GeneralConfig extends JDialog implements ActionListener, ItemListen
 	public void init() {
 		JLabel help = new JLabel("You can make data settings here.");
 		JPanel settings = new JPanel();
-		settings.setLayout(new GridLayout(3, 2));
+		settings.setLayout(new GridLayout(3, 2, 10, 10));
 		settings.add(autoLabel);
 		settings.add(autoList);
 		settings.add(compilerLabel);
