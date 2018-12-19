@@ -84,7 +84,7 @@ public class GeneralConfig extends JDialog implements ActionListener, ItemListen
 		}
 	}
 	
-	public void init() {
+	private void init() {
 		JLabel help = new JLabel("You can make data settings here.");
 		JPanel settings = new JPanel();
 		settings.setLayout(new GridLayout(3, 2, 10, 10));

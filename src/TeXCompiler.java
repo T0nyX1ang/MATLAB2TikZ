@@ -4,7 +4,7 @@ public class TeXCompiler extends CommandExecutor{
 	// This class is designed to compile LaTeX documents.
 	// More properly, it's for previewing TikZ pictures.
 	
-	public void compileTeX(String backend, String filehash) {
+	void compileTeX(String backend, String filehash) {
 		try {
 			TeXCompiler tc = new TeXCompiler();
 			final String params = " -shell-escape -interaction=nonstopmode -synctex=1 ";
@@ -30,7 +30,7 @@ public class TeXCompiler extends CommandExecutor{
 		}
 	}
 	
-	public boolean checkValid(String filehash) {
+	private boolean checkValid(String filehash) {
 		final String filename = "test.pdf";
 		final String picturename = "test-figure0.pdf";
 		String directory = "." + File.separator + "temp" + File.separator + filehash;

@@ -29,7 +29,7 @@ public class PictureUtils extends PictureAlgorithms{
 	int dataWidth = 0;
 	int dataHeight = 0;
 	
-	public void setBasics(BufferedImage image) {
+	void setBasics(BufferedImage image) {
 		height = image.getHeight();
 		width = image.getWidth();
 		whiteY = new boolean[width];
@@ -63,7 +63,7 @@ public class PictureUtils extends PictureAlgorithms{
 		isYGrid = (horz_lines > 2);
 	}
 	
-	public void getXPixel() {
+	private void getXPixel() {
 		// calculate column white pixels
 		for (int i = 0; i < width; i++) {
 			int col_counter = 0;
@@ -85,7 +85,7 @@ public class PictureUtils extends PictureAlgorithms{
 		}		
 	}
 	
-	public void getYPixel() {
+	private void getYPixel() {
 		// calculate row white pixels
 		for (int i = 0; i < height; i++) {
 			int row_counter = 0;
@@ -106,7 +106,7 @@ public class PictureUtils extends PictureAlgorithms{
 		}
 	}
 	
-	public int getXLabel(BufferedImage image) {
+	private int getXLabel(BufferedImage image) {
 		// using whiteX to get axis X's label. Search from bottom.
 		int dirY = height - 1;
 		// prepare for more sophisticated cropping here.
@@ -122,7 +122,7 @@ public class PictureUtils extends PictureAlgorithms{
 		return dirY;
 	}
 	
-	public int getYLabel(BufferedImage image) {
+	private int getYLabel(BufferedImage image) {
 		// using whiteY to get axis Y's label. Search from left.
 		int dirX = 0;
 		// prepare for more sophisticated cropping here.
@@ -138,7 +138,7 @@ public class PictureUtils extends PictureAlgorithms{
 		return dirX;
 	}
 	
-	public void getOrigin(int searchFromX, int searchFromY) {
+	private void getOrigin(int searchFromX, int searchFromY) {
 		while ((consecY[searchFromX] < (int) height * CTRL_ACPT) && (searchFromX < width))
 			searchFromX++;
 		while ((consecX[searchFromY] < (int) width * CTRL_ACPT) && (searchFromY >= 0))
@@ -147,7 +147,7 @@ public class PictureUtils extends PictureAlgorithms{
 		originY = searchFromY;
 	}
 	
-	public int getXStepOriginal(BufferedImage image, int searchFromY, int searchToY) {
+	private int getXStepOriginal(BufferedImage image, int searchFromY, int searchToY) {
 		boolean canMove = true;
 		int startX = originX;
 		int endX = width - 1;
@@ -179,7 +179,7 @@ public class PictureUtils extends PictureAlgorithms{
 		return searchFromY;
 	}
 	
-	public int getYStepOriginal(BufferedImage image, int searchFromX, int searchToX) {
+	private int getYStepOriginal(BufferedImage image, int searchFromX, int searchToX) {
 		boolean canMove = true;
 		int endY = originY;
 		int startY = 0;
@@ -212,7 +212,7 @@ public class PictureUtils extends PictureAlgorithms{
 		return searchFromX;
 	}
 	
-	public int detectXGrid() {
+	private int detectXGrid() {
 		int dirX = originX;
 		int col_counter = 0;
 		while (dirX < width) {
@@ -227,7 +227,7 @@ public class PictureUtils extends PictureAlgorithms{
 		return col_counter; // only works as a checking tool.
 	}
 	
-	public int detectYGrid() {
+	private int detectYGrid() {
 		int dirY = originY;
 		int row_counter = 0;
 		while (dirY >= 0) {
@@ -242,7 +242,7 @@ public class PictureUtils extends PictureAlgorithms{
 		return row_counter; // only works as a checking tool.
 	}
 	
-	public String getData(BufferedImage image, double xStart, double xStop, double yStart, double yStop) {
+	String getData(BufferedImage image, double xStart, double xStop, double yStart, double yStop) {
 		dataHeight = image.getHeight();
 		dataWidth = image.getWidth();
 		String sep = System.lineSeparator();
@@ -279,7 +279,7 @@ public class PictureUtils extends PictureAlgorithms{
 		return dataString;
 	}
 	
-	public void generateTikZ(double xStart, double xStop, 
+	void generateTikZ(double xStart, double xStop, 
 							 double yStart, double yStop,
 							 double xStep, double yStep,
 							 String xLabel, String yLabel,

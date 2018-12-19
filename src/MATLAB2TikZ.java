@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -19,6 +20,17 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 		}
 	}
 	
+	private final String VERSION_NUMBER = "0.1.2";
+	private JLabel guideline = new JLabel("Guidelines: " +
+										  "(1) Import the picture. " +  
+										  "(2) Setting the data. " +
+										  "(3) Generate TikZ. " + 
+										  "(4) Preview TikZ. ");
+	private JButton importButton = new JButton("Import");
+	private JButton dataButton = new JButton("Data");
+	private JButton generateButton = new JButton("Generate");
+	private JButton previewButton = new JButton("Preview");
+	private JButton exitButton = new JButton("Exit");
 	private JMenu fileMenu = new JMenu("File");
 	private JMenuItem fileImportPic = new JMenuItem("Import");
 	private JMenuItem fileGenTikZ = new JMenuItem("Generate TikZ");
@@ -54,6 +66,25 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 	
 	public MATLAB2TikZ(){
 		super("MatLab to TikZ");
+		init();
+		setSize(1080, 720);
+		setLocationRelativeTo(null);
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+	}
+	
+	private void init() {
+		JPanel buttons = new JPanel(new FlowLayout());
+		buttons.add(importButton);
+		importButton.addActionListener(this);
+		buttons.add(dataButton);
+		dataButton.addActionListener(this);
+		buttons.add(generateButton);
+		generateButton.addActionListener(this);
+		buttons.add(previewButton);
+		previewButton.addActionListener(this);
+		buttons.add(exitButton);
+		exitButton.addActionListener(this);
 		fileMenu.add(fileImportPic);
 		fileImportPic.addActionListener(this);
 		fileMenu.add(fileGenTikZ);
@@ -78,31 +109,29 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 		setJMenuBar(menu);
 		setLayout(new BorderLayout());
 		addWindowListener(new WindowCloser());
-		add("Center", diwc);
-		setSize(1080, 720);
-		setLocationRelativeTo(null);
-		setVisible(true);
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		add("North", guideline);
+		add("South", buttons);
+		add("Center", diwc);		
 	}
 	
 	public void actionPerformed(ActionEvent ae) {
-		if (ae.getSource() == fileExit) {
+		if (ae.getSource() == fileExit || ae.getSource() == exitButton) {
 			int confirm = JOptionPane.showConfirmDialog(this, "Do you really want to exit?", 
 														"Confirm exit", JOptionPane.YES_NO_OPTION);
 			if (confirm == 0)
 				System.exit(0);
 		}
 		
-		else if (ae.getSource() == fileImportPic)
+		else if (ae.getSource() == fileImportPic || ae.getSource() == importButton)
 			importPicture();
 		
-		else if (ae.getSource() == fileTikZPreview)
+		else if (ae.getSource() == fileTikZPreview || ae.getSource() == previewButton)
 			previewTikZ();
 		
-		else if (ae.getSource() == fileGenTikZ)
+		else if (ae.getSource() == fileGenTikZ || ae.getSource() == generateButton)
 			generateTikZ();
 		
-		else if (ae.getSource() == configData)
+		else if (ae.getSource() == configData || ae.getSource() == dataButton)
 			dataConfig();
 		
 		else if (ae.getSource() == configGeneral)
@@ -112,7 +141,7 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 			String sep = System.lineSeparator();
 			String aboutContext = "MatLab2TikZ:" + sep +
 								  "A program to convert MatLab(R) plots to TikZ codes." + sep +
-								  "Version: 0.1.0" + sep +
+								  "Version:" + VERSION_NUMBER + sep +
 								  "Author: Tony Xiang(tonyxfy@gmail.com)" + sep;
 			JOptionPane.showMessageDialog(this, aboutContext, "About this program", JOptionPane.PLAIN_MESSAGE); 
 		}
