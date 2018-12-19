@@ -13,10 +13,12 @@ This is an Java assignment which converts MATLAB plots to TikZ pictures.
 
 ## Update Notes:
 
-### Version 0.1.1
+### Version 0.1.2
 * Fix a dialog-data bug in the 'General Settings' menu.
 * Change some dialog styles in the 'Settings' menu. (Add borders, add hgap, vgap).
 * remove some redundant codes.
+* Change class visiblity levels.
+* Add some guidelines and buttons in the main window.
 
 ### Version 0.1.0
 * Basic structure of 2-d plots are constructed now.
