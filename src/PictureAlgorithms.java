@@ -21,7 +21,7 @@ public class PictureAlgorithms {
 	}
 	
 	public BufferedImage otsu(int[][] gray, int width, int height){
-		int[] histData = new int[width * height];
+		int[] histData = new int[256];
 		// Calculate histogram
 		for (int i = 0; i < width; i++){
 			for (int j = 0; j < height; j++){
@@ -250,6 +250,116 @@ public class PictureAlgorithms {
 		for (int i = startX; i < endX; i++)
 			for (int j = startY; j < endY; j++)
 				result.setRGB(i - startX, j - startY, bufferedImage.getRGB(i, j));
+		return result;
+	}
+	
+	public BufferedImage resizeImage(BufferedImage image, int xBound, int yBound, boolean rotate) {
+		// *Bound : boundary of *.
+		// -1 if don't crop from this direction.
+		// 0 if doing a full crop.
+		// x > 0, will make a x pixels whitespace if possible.
+		int width = image.getWidth();
+		int height = image.getHeight();
+		int gray[][] = this.getGray(image);
+		int startX = 0;
+		int endX = width - 1;
+		int startY = 0;
+		int endY = height - 1;
+		boolean record = false;
+		
+		if (xBound != -1) {
+			while (startX <= width - 1) {
+				record = false;
+				for (int j = 0; j < height; j++)
+					if (gray[startX][j] != 255) {
+						record = true;
+						break;
+					}
+				if (!record)
+					startX++;
+				else {
+					startX--;
+					break;
+				}
+			}
+			if (startX - 0 > xBound)
+				startX -= xBound;
+			else
+				startX = 0;
+			
+			while (endX >= 0) {
+				record = false;
+				for (int j = 0; j < height; j++)
+					if (gray[endX][j] != 255) {
+						record = true;
+						break;
+					}
+				if (!record)
+					endX--;
+				else {
+					endX++;
+					break;
+				}
+			}
+			if (width - 1 - endX > xBound)
+				endX += xBound;
+			else
+				endX = width - 1;
+		}
+		
+		if (yBound != -1) {
+			while (startY <= height - 1) {
+				record = false;
+				for (int i = 0; i < width; i++)
+					if (gray[i][startY] != 255) {
+						record = true;
+						break;
+					}
+				if (!record)
+					startY++;
+				else {
+					startY--;
+					break;
+				}
+			}
+			if (startY - 0 > yBound)
+				startY -= yBound;
+			else
+				startY = 0;
+
+			while (endY >= 0) {
+				record = false;
+				for (int i = 0; i < width; i++)
+					if (gray[i][endY] != 255) {
+						record = true;
+						break;
+					}
+				if (!record)
+					endY--;
+				else {
+					endY++;
+					break;
+				}
+			}
+			if (height - 1 - endY > yBound)
+				endY += yBound;
+			else
+				endY = height - 1;
+		}
+		
+		// Discard alpha mask when generating a new cropped image.
+		BufferedImage result = null;
+		if (rotate) {
+			result = new BufferedImage(endY - startY, endX - startX, 4);
+			for (int j = startY; j < endY; j++)
+				for (int i = startX; i < endX; i++)
+					result.setRGB(endY - 1 - j, i - startX, image.getRGB(i, j));	
+		} else {
+			result = new BufferedImage(endX - startX, endY - startY, 4);
+			for (int i = startX; i < endX; i++)
+				for (int j = startY; j < endY; j++)
+					result.setRGB(i - startX, j - startY, image.getRGB(i, j));
+		}
 		return result;
 	}
 }

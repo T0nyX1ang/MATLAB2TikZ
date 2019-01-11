@@ -1,6 +1,8 @@
 import java.awt.image.*;
 import java.io.*;
 
+import javax.imageio.ImageIO;
+
 public class PictureUtils extends PictureAlgorithms{
 	// Control constants
 	private final double CTRL_ACPT = 0.7;
@@ -61,6 +63,7 @@ public class PictureUtils extends PictureAlgorithms{
 		int horz_lines = detectYGrid();
 		isXGrid = (vert_lines > 2);
 		isYGrid = (horz_lines > 2);
+		
 	}
 	
 	private void getXPixel() {

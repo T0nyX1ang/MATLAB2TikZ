@@ -1,4 +1,6 @@
 import java.awt.image.*;
+import java.io.*;
+import javax.imageio.ImageIO;
 
 public class WordRecognition extends CommandExecutor{
 	// auto recognize words (OCR) module.
@@ -11,21 +13,50 @@ public class WordRecognition extends CommandExecutor{
 	int yStep = 0;
 	String xLabel = null;
 	String yLabel = null;
+	PictureAlgorithms pa = new PictureAlgorithms();
 	
 	public void getXLabelString(BufferedImage xLabelImage) {
-
+		xLabelImage = pa.resizeImage(xLabelImage, 5, -1, false);
+		BufferedImage image = pa.otsu(pa.getGray(xLabelImage), xLabelImage.getWidth(), xLabelImage.getHeight());
+		try {
+			ImageIO.write(image, "TIFF", new File("." + File.separator + "test" + File.separator + "XLabel.tiff"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void getYLabelString(BufferedImage yLabelImage) {
-		
+		yLabelImage = pa.resizeImage(yLabelImage, -1, 5, true);
+		BufferedImage image = pa.otsu(pa.getGray(yLabelImage), yLabelImage.getWidth(), yLabelImage.getHeight());
+		try {
+			ImageIO.write(image, "TIFF", new File("." + File.separator + "test" + File.separator + "YLabel.tiff"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
 	
 	public void getXDetail(BufferedImage xAxisImage) {
-		
+		xAxisImage = pa.resizeImage(xAxisImage, 5, -1, false);
+		BufferedImage image = pa.otsu(pa.getGray(xAxisImage), xAxisImage.getWidth(), xAxisImage.getHeight());
+		try {
+			ImageIO.write(image, "TIFF", new File("." + File.separator + "test" + File.separator + "XAxis.tiff"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
 	
 	public void getYDetail(BufferedImage yAxisImage) {
-		
+		yAxisImage = pa.resizeImage(yAxisImage, -1, 5, false);
+		BufferedImage image = pa.otsu(pa.getGray(yAxisImage), yAxisImage.getWidth(), yAxisImage.getHeight());
+		try {
+			ImageIO.write(image, "TIFF", new File("." + File.separator + "test" + File.separator + "YAxis.tiff"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 }
