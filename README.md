@@ -13,6 +13,10 @@ This is an Java assignment which converts MATLAB plots to TikZ pictures.
 
 ## Update Notes:
 
+### Version 0.1.3(Not Released)
+* Fix a bug in Otsu algorithm.
+* Adding a picture-resizing algorithm to prepare for OCR.
+
 ### Version 0.1.2
 * Fix a dialog-data bug in the 'General Settings' menu.
 * Change some dialog styles in the 'Settings' menu. (Add borders, add hgap, vgap).
