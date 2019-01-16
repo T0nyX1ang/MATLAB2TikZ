@@ -20,7 +20,7 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 		}
 	}
 	
-	private final String VERSION_NUMBER = "0.1.2";
+	private final String VERSION_NUMBER = "0.1.4";
 	private JLabel guideline = new JLabel("Guidelines: " +
 										  "(1) Import the picture. " +  
 										  "(2) Setting the data. " +
@@ -249,6 +249,21 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 			isXGrid = pu.isXGrid;
 			isYGrid = pu.isYGrid;
 			pu.getLegend(pu.MainDataOrig);
+			pu.getLegendData(pu.legendDataOrig);
+
+			try {
+				if (pu.legendTitleOrig != null)
+					ImageIO.write(pu.legendTitleOrig, "TIFF", new File("." + File.separator + "test" + File.separator + "LegendTitle.tiff"));
+				else {
+					System.out.println("Legend title doesn't exist.");
+				}
+				for (int i = 0; i < pu.legendCount; i++) {
+					System.out.print(pu.legendColor[i] + " ");
+					ImageIO.write(pu.legendNameOrig[i], "TIFF", new File("." + File.separator + "test" + File.separator + "LegendName-" + i + ".tiff"));
+				}
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
 			
 			// Using automatically generated data (PENDING)
 			if ((xStop == xStart) || (xStep == 0) || 
@@ -277,10 +292,13 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 							isXGrid, isYGrid,
 							fileSave);
 		} catch (SecurityException se) {
-			System.err.println("Permission denied." + se);
+			System.err.println("Permission denied. " + se);
 		} catch (NullPointerException npe) {
-			System.err.println("File creation error. Make sure you have imported the picture before." + npe);
-		} catch (Exception e) {
+			System.err.println("File creation error. Make sure you have imported the picture before. " + npe);
+		} catch (IndexOutOfBoundsException iobe) {
+			System.err.println("Legend counts greater than limit: 10. " + iobe);
+		}
+		catch (Exception e) {
 			System.err.println("Unknown error. ");
 			e.printStackTrace();
 		}

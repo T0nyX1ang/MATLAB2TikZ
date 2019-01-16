@@ -5,6 +5,8 @@ import java.io.*;
 public class PictureUtils extends PictureAlgorithms{
 	// Control constants
 	private final double CTRL_ACPT = 0.7;
+	private final int WHITE_RGB = Color.WHITE.getRGB();
+	private final int LEGEND_ELEM_LIMIT = 10;
 	// Picture physical characteristics
 	private int height = 0;
 	private int width = 0;
@@ -28,12 +30,11 @@ public class PictureUtils extends PictureAlgorithms{
 	boolean isXGrid = false;
 	boolean isYGrid = false;
 	String dataString = "";
-	int dataWidth = 0;
-	int dataHeight = 0;
 	// legend parameters
-	int[] legendColor;
-	String[] legendData;
-	String legendName = "";
+	int legendCount = 0;
+	int[] legendColor = new int[LEGEND_ELEM_LIMIT];
+	BufferedImage[] legendNameOrig = new BufferedImage[LEGEND_ELEM_LIMIT];
+	BufferedImage legendTitleOrig = null;
 	
 	void setBasics(BufferedImage image) {
 		height = image.getHeight();
@@ -259,7 +260,6 @@ public class PictureUtils extends PictureAlgorithms{
 	}
 	
 	void getLegend(BufferedImage image) {
-		int WHITE_RGB = Color.WHITE.getRGB();
 		int height = image.getHeight();
 		int width = image.getWidth();
 		int nowRed = (int) (image.getRGB(0, 1) >> 16) & 0xFF;
@@ -312,6 +312,7 @@ public class PictureUtils extends PictureAlgorithms{
 						for (int i1 = startX; i1 <= endX; i1++)
 							for (int j1 = startY; j1 <= endY; j1++)
 								image.setRGB(i1, j1, WHITE_RGB);
+						return;
 					}
 					else
 						continue;
@@ -320,9 +321,77 @@ public class PictureUtils extends PictureAlgorithms{
 			}
 	}
 	
+	void getLegendData(BufferedImage image) {
+		int legendHeight = image.getHeight();
+		int legendWidth = image.getWidth();
+		int sepLine = 0;
+		int[][] gray = getGray(image);
+		
+		for (int j = 0; j < legendHeight; j++)
+			if (gray[0][j] != 255) {
+				sepLine = j;
+				for (int i = 0; i < legendWidth; i++)
+					image.setRGB(i, j, WHITE_RGB);
+			}
+			
+		// deal with legend title
+		if (sepLine != 0)
+			legendTitleOrig = cropImage(image, 0, legendWidth, 0, sepLine);
+		
+		// deal with legend details
+		boolean[] legendWhiteX = new boolean[legendWidth];
+		boolean[] legendWhiteY = new boolean[legendHeight];
+		for (int i = 0; i < legendWidth; i++) {
+			legendWhiteX[i] = true;
+			for (int j = sepLine + 1; j < legendHeight; j++) {
+				if (gray[i][j] != 255) {
+					legendWhiteX[i] = false;
+					break;
+				}
+			}
+		}
+		
+		for (int j = sepLine + 1; j < legendHeight; j++) {
+			legendWhiteY[j] = true;
+			for (int i = 0; i < legendWidth; i++) {
+				if (gray[i][j] != 255) {
+					legendWhiteY[j] = false;
+					break;
+				}
+			}
+		}
+		
+		int dirX = 0;
+		while (legendWhiteX[dirX] && dirX < legendWidth - 1)
+			dirX++;
+		int startX = dirX;
+		while (!legendWhiteX[dirX] && dirX < legendWidth - 1)
+			dirX++;
+		int endX = dirX - 1;
+		int dirY = sepLine + 1;
+		while (!legendWhiteY[dirY] && dirY < legendHeight - 1)
+			dirY++;
+		while (dirY < legendHeight - 1) {
+			while (legendWhiteY[dirY] && dirY < legendHeight - 1)
+				dirY++;
+			int startY = dirY - 1;
+			while (!legendWhiteY[dirY] && dirY < legendHeight - 1)
+				dirY++;
+			int endY = dirY;
+			if (endY - startY > 1) {
+				legendNameOrig[legendCount] = cropImage(image, endX + 1, legendWidth - 1, startY, endY + 1);
+				for (int k = startY; k < endY; k++)
+					if (gray[(startX + endX) / 2][k] != 255)
+						legendColor[legendCount] = gray[(startX + endX) / 2][k];
+				legendCount++;
+			}
+		}
+		
+	}
+	
 	String getData(BufferedImage image, double xStart, double xStop, double yStart, double yStop) {
-		dataHeight = image.getHeight();
-		dataWidth = image.getWidth();
+		int dataHeight = image.getHeight();
+		int dataWidth = image.getWidth();
 		String sep = System.lineSeparator();
 		String dataString = "";
 		int[][] dataGray = getGray(image);
