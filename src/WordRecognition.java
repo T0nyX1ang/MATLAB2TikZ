@@ -17,6 +17,11 @@ public class WordRecognition extends CommandExecutor{
 	private PictureAlgorithms pa = new PictureAlgorithms();
 	
 	public void getXLabelString(BufferedImage xLabelImage) {
+		if (xLabelImage == null) {
+			System.out.println("X Label doesn't seem to exist. Setting it to empty string.");
+			xLabel = "";
+			return;
+		}
 		xLabelImage = pa.resizeImage(xLabelImage, 5, -1, false);
 		BufferedImage image = pa.otsu(pa.getGray(xLabelImage), xLabelImage.getWidth(), xLabelImage.getHeight());
 		image = pa.convertToBufferedImage(image.getScaledInstance(image.getWidth() * 5, image.getHeight() * 5, Image.SCALE_SMOOTH));
@@ -29,6 +34,11 @@ public class WordRecognition extends CommandExecutor{
 	}
 	
 	public void getYLabelString(BufferedImage yLabelImage) {
+		if (yLabelImage == null) {
+			System.out.println("Y Label doesn't seem to exist. Setting it to empty string.");
+			yLabel = "";
+			return;
+		}
 		yLabelImage = pa.resizeImage(yLabelImage, -1, 5, true);
 		BufferedImage image = pa.otsu(pa.getGray(yLabelImage), yLabelImage.getWidth(), yLabelImage.getHeight());
 		image = pa.convertToBufferedImage(image.getScaledInstance(image.getWidth() * 5, image.getHeight() * 5, Image.SCALE_SMOOTH));

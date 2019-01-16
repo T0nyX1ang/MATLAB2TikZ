@@ -14,6 +14,29 @@ public class PictureAlgorithms {
 		return bufferedImage;
 	}
 	
+	public int getGray(int red, int green, int blue) {
+		return (int) Math.pow((Math.pow(red, 2.2) * 0.2973 + 
+				 	 Math.pow(green, 2.2)* 0.6274 + 
+				 	 Math.pow(blue, 2.2) * 0.0753), 1 / 2.2);
+	}
+	
+	public int getGray(int red, int green, int blue, int oscilator) {
+		// Filter mode.
+		if ((oscilator < 0) || (oscilator > 255))
+			return getGray(red, green, blue);
+		else {
+			int ans = (int) getGray(red, green, blue) ^ oscilator;
+			if (ans < 5) {
+				ans = (ans * 1) & 255;
+			} else if (ans < 20) {
+				ans = (ans * 5) & 255;
+			} else {
+				ans = 255;
+			}
+			return ans;
+		}
+	}
+	
 	public int[][] getGray(BufferedImage image) {
 		int width = image.getTileWidth();
 		int height = image.getHeight();
@@ -23,9 +46,22 @@ public class PictureAlgorithms {
 				int nowRed = (int) (image.getRGB(i, j) >> 16) & 0xFF;
 				int nowGreen = (int) (image.getRGB(i, j) >> 8) & 0xFF;
 				int nowBlue = (int) (image.getRGB(i, j) >> 0) & 0xFF;
-				gray[i][j] = (int) Math.pow((Math.pow(nowRed, 2.2) * 0.2973 + 
-											 Math.pow(nowGreen, 2.2)* 0.6274 + 
-											 Math.pow(nowBlue, 2.2) * 0.0753), 1 / 2.2);
+				gray[i][j] = getGray(nowRed, nowGreen, nowBlue);
+			}
+		}
+		return gray;
+	}
+	
+	public int[][] getGray(BufferedImage image, int colorgray) {
+		int width = image.getTileWidth();
+		int height = image.getHeight();
+		int[][] gray = new int[width][height];
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				int nowRed = (int) (image.getRGB(i, j) >> 16) & 0xFF;
+				int nowGreen = (int) (image.getRGB(i, j) >> 8) & 0xFF;
+				int nowBlue = (int) (image.getRGB(i, j) >> 0) & 0xFF;
+				gray[i][j] = getGray(nowRed, nowGreen, nowBlue, colorgray);
 			}
 		}
 		return gray;

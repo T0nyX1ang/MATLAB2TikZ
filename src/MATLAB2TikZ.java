@@ -194,7 +194,8 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 		} catch (FileNotFoundException fnfe) {
 			System.err.println("File not found error." + fnfe);
 		} catch (Exception e) {
-			System.err.println("Unknown error. " + e);
+			System.err.println("Unknown error. ");
+			e.printStackTrace();
 		}		
 	}
 	
@@ -245,6 +246,9 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 			wr.getYDetail(pu.yStepOrig);
 			wr.getXLabelString(pu.xLabel);
 			wr.getYLabelString(pu.yLabel);
+			isXGrid = pu.isXGrid;
+			isYGrid = pu.isYGrid;
+			pu.getLegend(pu.MainDataOrig);
 			
 			// Using automatically generated data (PENDING)
 			if ((xStop == xStart) || (xStep == 0) || 
@@ -277,7 +281,8 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 		} catch (NullPointerException npe) {
 			System.err.println("File creation error. Make sure you have imported the picture before." + npe);
 		} catch (Exception e) {
-			System.err.println("Unknown error. " + e);
+			System.err.println("Unknown error. ");
+			e.printStackTrace();
 		}
 	}
 	
@@ -294,8 +299,13 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 				jfc.setFileFilter(filter);
 				jfc.setSelectedFile(autoModeFile);
 	            jfc.setMultiSelectionEnabled(false);
-				jfc.showOpenDialog(this);
-				fileLoad = jfc.getSelectedFile();
+				int confirm = jfc.showOpenDialog(this);
+				if (confirm == 1) {
+					fileLoad = null;
+					System.out.println("Preview cancelled by user.");
+					return;
+				} else
+					fileLoad = jfc.getSelectedFile();
 			} 
 			if (fileLoad != null) {
 				if (fileLoad.getName().endsWith(".tikz")) {
@@ -318,7 +328,8 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 		} catch (NullPointerException npe) {
 			System.err.println("File creation error. " + npe);
 		} catch (Exception e) {
-			System.err.println("Unknown error. " + e);
+			System.err.println("Unknown error. ");
+			e.printStackTrace();
 		}
 	}
 

@@ -1,7 +1,6 @@
+import java.awt.Color;
 import java.awt.image.*;
 import java.io.*;
-
-import javax.imageio.ImageIO;
 
 public class PictureUtils extends PictureAlgorithms{
 	// Control constants
@@ -20,6 +19,7 @@ public class PictureUtils extends PictureAlgorithms{
 	BufferedImage xStepOrig = null;
 	BufferedImage yStepOrig = null;
 	BufferedImage MainDataOrig = null;
+	BufferedImage legendDataOrig = null;
 	BufferedImage MainData = null;
 	// Data detailed characteristics
 	private int originX = 0;
@@ -30,6 +30,10 @@ public class PictureUtils extends PictureAlgorithms{
 	String dataString = "";
 	int dataWidth = 0;
 	int dataHeight = 0;
+	// legend parameters
+	int[] legendColor;
+	String[] legendData;
+	String legendName = "";
 	
 	void setBasics(BufferedImage image) {
 		height = image.getHeight();
@@ -118,10 +122,15 @@ public class PictureUtils extends PictureAlgorithms{
 		while (whiteX[dirY])
 			dirY--; // get start point.
 		int endY = dirY + 1;
-		while (!whiteX[dirY])
+		while (!whiteX[dirY] && dirY > 0)
 			dirY--;
 		int startY = dirY;
-		xLabel = cropImage(image, dirXLeft, dirXRight, startY, endY);
+		if (endY - startY > (int) (CTRL_ACPT * height)) {
+			xLabel = null; // condition for non-exist X Label
+			return endY;
+		}
+		else
+			xLabel = cropImage(image, dirXLeft, dirXRight, startY, endY);
 		return dirY;
 	}
 	
@@ -134,9 +143,13 @@ public class PictureUtils extends PictureAlgorithms{
 		while (whiteY[dirX])
 			dirX++; // get start point.
 		int startX = dirX - 1;
-		while (!whiteY[dirX])
+		while (!whiteY[dirX] && dirX < width - 1)
 			dirX++;
 		int endX = dirX;
+		if (endX - startX > (int) (CTRL_ACPT * width)) {
+			yLabel = null;
+			return startX;
+		}
 		yLabel = cropImage(image, startX, endX, dirYTop, dirYBottom);
 		return dirX;
 	}
@@ -245,6 +258,68 @@ public class PictureUtils extends PictureAlgorithms{
 		return row_counter; // only works as a checking tool.
 	}
 	
+	void getLegend(BufferedImage image) {
+		int WHITE_RGB = Color.WHITE.getRGB();
+		int height = image.getHeight();
+		int width = image.getWidth();
+		int nowRed = (int) (image.getRGB(0, 1) >> 16) & 0xFF;
+		int nowGreen = (int) (image.getRGB(0, 1) >> 8) & 0xFF;
+		int nowBlue = (int) (image.getRGB(0, 1) >> 0) & 0xFF;
+		int colorgray = getGray(nowRed, nowGreen, nowBlue);
+		BufferedImage otsuResult = otsu(getGray(image, colorgray), width, height);
+		BufferedImage clearResult = clearAxisTicks(getGray(otsuResult), width, height);
+		int[][] imagegray = getGray(clearResult);
+		for (int i = 1; i < width - 1; i++)
+			for (int j = 1; j < height - 1; j++) {
+				int startX = i - 1;
+				int startY = j;
+				int endX = 0;
+				int endY = 0;
+				if (imagegray[i][j] == 0) {
+					if (imagegray[i + 1][j] != 0)
+						continue;
+					// Move direction: right
+					int nowX = i;
+					int nowY = j;
+					while (nowX < width - 1 && imagegray[nowX][nowY] == 0)
+						nowX++;
+					
+					if (imagegray[nowX][nowY + 1] != 0)
+						continue;
+					// Move direction: down
+					endX = nowX;
+					nowY++;
+					while (nowY < height - 1 && imagegray[nowX][nowY] == 0)
+						nowY++;
+					
+					if (imagegray[nowX - 1][nowY] != 0)
+						continue;
+					// Move direction: left
+					nowX--;
+					endY = nowY;
+					while (nowX > 0 && imagegray[nowX][nowY] == 0)
+						nowX--;
+					
+					if (imagegray[nowX][nowY - 1] != 0)
+						continue;
+					// Move direction: up
+					nowY--;
+					while (nowY > 0 && imagegray[nowX][nowY] == 0)
+						nowY--;
+					
+					if (imagegray[nowX + 1][nowY] == 0 && nowX + 1 == i && nowY == j) {
+						legendDataOrig = cropImage(image, startX + 1, endX, startY + 1 ,endY);	
+						for (int i1 = startX; i1 <= endX; i1++)
+							for (int j1 = startY; j1 <= endY; j1++)
+								image.setRGB(i1, j1, WHITE_RGB);
+					}
+					else
+						continue;
+				} else
+					continue;
+			}
+	}
+	
 	String getData(BufferedImage image, double xStart, double xStop, double yStart, double yStop) {
 		dataHeight = image.getHeight();
 		dataWidth = image.getWidth();
@@ -257,7 +332,6 @@ public class PictureUtils extends PictureAlgorithms{
 		dataGray = getGray(clearResult);
 		BufferedImage hilditchResult = hilditch(dataGray, dataWidth, dataHeight);
 		MainData = hilditchResult;
-		System.out.println("Getting data pixels successfully.");
 		dataGray = getGray(MainData);
 		for (int i = 0; i < dataWidth; i++) {
 			int dirY = dataHeight - 1;
@@ -283,11 +357,11 @@ public class PictureUtils extends PictureAlgorithms{
 	}
 	
 	void generateTikZ(double xStart, double xStop, 
-							 double yStart, double yStop,
-							 double xStep, double yStep,
-							 String xLabel, String yLabel,
-							 boolean isXGrid, boolean isYGrid,
-							 File file) {
+					  double yStart, double yStop,
+				   	  double xStep, double yStep,
+					  String xLabel, String yLabel,
+					  boolean isXGrid, boolean isYGrid,
+					  File file) {
 		dataString = getData(MainDataOrig, xStart, xStop, yStart, yStop);
 		String sep = System.lineSeparator();
 		// setting grids

@@ -16,8 +16,6 @@ public class TikZConvert {
 						throw new IOException();
 			} catch (SecurityException se) {
 				System.err.println("Permission denied. " + se);
-			} catch (IOException e) {
-				System.err.println("Unknown error. " + e);
 			}
 			// read
 			System.getProperty("line.separator");
@@ -62,7 +60,8 @@ public class TikZConvert {
 		} catch (SecurityException se) {
 			System.err.println("Permission denied. " + se);
 		} catch (IOException e) {
-			System.err.println("Unknown error. " + e);
+			System.err.println("Unknown error. ");
+			e.printStackTrace();
 		}
 		return hash;
 	}
