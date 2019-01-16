@@ -20,7 +20,7 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 		}
 	}
 	
-	private final String VERSION_NUMBER = "0.1.4";
+	private final String VERSION_NUMBER = "0.1.5-alpha";
 	private JLabel guideline = new JLabel("Guidelines: " +
 										  "(1) Import the picture. " +  
 										  "(2) Setting the data. " +
