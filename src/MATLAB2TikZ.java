@@ -20,7 +20,7 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 		}
 	}
 	
-	private final String VERSION_NUMBER = "0.1.6-beta";
+	private final String VERSION_NUMBER = "0.2.0";
 	private JLabel guideline = new JLabel("Guidelines: " +
 										  "(1) Import the picture. " +  
 										  "(2) Setting the data. " +
@@ -57,6 +57,8 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 	private double yStep = 0;
 	private String xLabel = null;
 	private String yLabel = null;
+	private String[] legendLabel = null;
+	private int legendCount = 0;
 	
 	// general settings
 	private int dpiValue = 240;
@@ -165,6 +167,19 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 	
 	public void importPicture() {
 		try {
+			// Reset data every time.
+			isXGrid = false;
+			isYGrid = false;
+			xStart = 0;
+			xStop = 0;
+			xStep = 0;
+			yStart = 0;
+			yStop = 0;
+			yStep = 0;
+			xLabel = null;
+			yLabel = null;
+			legendLabel = null;
+			legendCount = 0;
 			JFileChooser jfc = new JFileChooser();
 			FileNameExtensionFilter filter = new FileNameExtensionFilter("Images(*.jpg, *.gif, *.bmp, *.png)",
 																		 "jpg", "gif", "bmp", "png");
@@ -251,37 +266,50 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 			pu.getLegend(pu.MainDataOrig);
 			pu.getLegendData(pu.legendDataOrig);
 			pu.getDataMatrix(pu.MainDataOrig);
+			if (pu.legendTitleOrig != null)
+				wr.getLegendTitleString(pu.legendTitleOrig);
+			if (pu.legendDataOrig != null) {
+				while (pu.legendNameOrig[legendCount] != null && legendCount < 10) {
+					wr.getLegendNameString(pu.legendNameOrig[legendCount], (legendCount + 1));
+					legendCount++;
+				}
+			}
 			
 			// Using automatically generated data (PENDING)
 			if ((xStop == xStart) || (xStep == 0) || 
 				(yStop == yStart) || (yStep == 0) || 
-				(xLabel == null) || (yLabel == null)) {
+				(xLabel == null) || (yLabel == null) || 
+				(legendLabel == null)) {
 				xStart = wr.xStart;
 				xStop = wr.xStop;
 				xStep = wr.xStep;
 				yStart = wr.yStart;
 				yStop = wr.yStop;
 				yStep = wr.yStep;
+				legendLabel = wr.legendName;
 			}
 			
 			// Using user-input data (Forcibly override automatically generated data)
 			if ((xStop == xStart) || (xStep == 0) || 
 				(yStop == yStart) || (yStep == 0) || 
-				(xLabel == null) || (yLabel == null)) {
+				(xLabel == null) || (yLabel == null) ||
+				(legendLabel == null)) {
 				JOptionPane.showMessageDialog(this, sorryMessage, "Sorry", 
 											  JOptionPane.ERROR_MESSAGE);
 				dataConfig();
 			}
+			
 			pu.generateTikZ(xStart, xStop, 
 							yStart, yStop, 
 							xStep, yStep, 
-							xLabel, yLabel, 
+							xLabel, yLabel, legendLabel,
 							isXGrid, isYGrid,
 							fileSave);
 		} catch (SecurityException se) {
 			System.err.println("Permission denied. " + se);
 		} catch (NullPointerException npe) {
 			System.err.println("File creation error. Make sure you have imported the picture before. " + npe);
+			npe.printStackTrace();
 		} catch (IndexOutOfBoundsException iobe) {
 			System.err.println("Legend counts greater than limit: 10. " + iobe);
 		}
@@ -339,17 +367,16 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 	}
 
 	public void dataConfig() {
-		DataConfig dc = new DataConfig(this, "Data Settings");
+		DataConfig dc = new DataConfig(this, "Data Settings", legendCount);
 		// early escape the process when canceling the setting procedure.
 		if (!dc.dataValidate)
 			return;
 		else {
-			while (!dc.validateData()) {
-				System.err.println("Failed.");
+			while (!dc.dataValidate) {
 				JOptionPane.showMessageDialog(this, "Your settings are invalid.", "Data Error", JOptionPane.ERROR_MESSAGE);
 				dc.setVisible(true);
 			}
-			System.out.println("Success.");
+			System.out.println("Data config success.");
 			xStart = dc.xStart;
 			xStop = dc.xStop;
 			xStep = dc.xStep;
@@ -358,6 +385,7 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 			yStop = dc.yStop;
 			yStep = dc.yStep;
 			yLabel = dc.yLabel;
+			legendLabel = dc.legendLabel;
 		}
 	}
 	

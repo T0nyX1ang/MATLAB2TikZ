@@ -33,7 +33,7 @@ public class PictureUtils extends PictureAlgorithms{
 	boolean isYGrid = false;
 	// legend parameters
 	private int legendCount = 0;
-	int[] legendColor = new int[LEGEND_ELEM_LIMIT];
+	private int[] legendColor = new int[LEGEND_ELEM_LIMIT];
 	BufferedImage[] legendNameOrig = new BufferedImage[LEGEND_ELEM_LIMIT];
 	BufferedImage legendTitleOrig = null;
 	
@@ -445,22 +445,32 @@ public class PictureUtils extends PictureAlgorithms{
 		}
 	}
 	
-	private String getDataString(double[][] dataMatrix, double xStart, double xStop, 
-														double yStart, double yStop) {
+	private String[] getDataString(double[][] dataMatrix, double xStart, double xStop, 
+														  double yStart, double yStop) {
 		int dataHeight = MainDataOrig.getHeight();
 		int dataWidth = MainDataOrig.getWidth();		
-		String dataString = "";
+		String dataString[] = new String[LEGEND_ELEM_LIMIT];
 		String sep = System.lineSeparator();
 		if (legendCount == 0) {
+			dataString[0] = "";
 			for (int i = 0; i < dataMatrix[0].length; i++) {
 				if (dataMatrix[0][i] >= 0) {
 					double dataX = (double) xStart + (xStop - xStart) / dataWidth * i;
 					double dataY = (double) yStart + (yStop - yStart) / dataHeight * (dataHeight - dataMatrix[0][i]);
-					dataString = dataString + "    " + dataX + ", " + dataY + " " + sep;
+					dataString[0] = dataString[0] + "    " + dataX + ", " + dataY + " " + sep;
 				}
 			}
 		} else {
-			
+			for (int k = 0; k < legendCount; k++) {
+				dataString[k] = "";
+				for (int i = 0; i < dataMatrix[0].length; i++) {
+					if (dataMatrix[k][i] >= 0) {
+						double dataX = (double) xStart + (xStop - xStart) / dataWidth * i;
+						double dataY = (double) yStart + (yStop - yStart) / dataHeight * (dataHeight - dataMatrix[k][i]);
+						dataString[k] = dataString[k] + "    " + dataX + ", " + dataY + " " + sep;
+					}
+				}			
+			}
 		}
 		return dataString;
 	}
@@ -468,10 +478,10 @@ public class PictureUtils extends PictureAlgorithms{
 	void generateTikZ(double xStart, double xStop, 
 					  double yStart, double yStop,
 				   	  double xStep, double yStep,
-					  String xLabel, String yLabel,
+					  String xLabel, String yLabel, String[] legendLabel,
 					  boolean isXGrid, boolean isYGrid,
 					  File file) {
-		String dataString = getDataString(dataMatrix, xStart, xStop, yStart, yStop);
+		String[] dataString = getDataString(dataMatrix, xStart, xStop, yStart, yStop);
 		String sep = System.lineSeparator();
 		// setting grids
 		String xGridOpen = "%";
@@ -507,14 +517,39 @@ public class PictureUtils extends PictureAlgorithms{
 				 yGridOpen + "        grid," + sep +
 				 			 "        label=" + yLabel + ", " + sep +
 				 			 "    }," + sep;		
-		String visualizer = "    visualize as smooth line," + sep +
-							"]" + sep;
-		String dataConfig = "data [format=table] {" + sep;
-		String data = "    x, y" + sep + 
-					  dataString + 
+		String visualizer =  "    visualize as smooth line," + sep;
+		if (legendCount != 0) {
+			visualizer = "    visualize as smooth line/.list={dataset1";
+			for (int i = 1; i < legendCount; i++)
+				visualizer = visualizer + ", dataset" + (i + 1);
+			visualizer = visualizer + "}," + sep;
+		}
+		String styleSheet =  "    style sheet=vary hue" + sep +
+							 "]" + sep;
+		String label = "";
+		if (legendCount != 0) {
+			for (int i = 0; i < legendCount; i++)
+				label = label + "    dataset" + (i + 1) + "={label in legend={text=" + legendLabel[i] + "}}, " + sep;
+		}
+		String dataset = "";
+		if (legendCount == 0) {
+			String dataConfig = "data [format=table] {" + sep;
+			String data = "    x, y" + sep + 
+					  dataString[0] + 
 					  "};" + sep;
+			dataset = dataConfig + data;
+		} else {
+			for (int i = 0; i < legendCount; i++) {
+				String dataConfig = sep + "data [set=dataset" + (i + 1) + ", format=table] {" + sep;
+				String data = "    x, y" + sep + 
+						  dataString[i] + 
+						  "}" + sep;
+				dataset = dataset + dataConfig + data;
+			}
+			dataset = dataset + ";" + sep;
+		}
 		total = startTikZ + createData + axisConfig + xAxisConfig + yAxisConfig + visualizer 
-						  + dataConfig + data + endTikZ;
+						  + label + styleSheet  + dataset + endTikZ;
 		// write
 		try {
 			FileWriter fw = new FileWriter(file);

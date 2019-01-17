@@ -4,7 +4,7 @@ import java.awt.image.*;
 
 public class PictureAlgorithms {
 	// These utilities are under development now. They are algorithms.
-	private int PIVOT_RGB = 4096;
+	private int PIVOT_RGB = 3072;
 	
 	public BufferedImage convertToBufferedImage(Image image) {
 		BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), 

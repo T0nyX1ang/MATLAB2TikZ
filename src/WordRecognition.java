@@ -14,6 +14,8 @@ public class WordRecognition extends CommandExecutor{
 	int yStep = 0;
 	String xLabel = null;
 	String yLabel = null;
+	String legendTitle = null;
+	String[] legendName = null;
 	private PictureAlgorithms pa = new PictureAlgorithms();
 	
 	public void getXLabelString(BufferedImage xLabelImage) {
@@ -68,6 +70,30 @@ public class WordRecognition extends CommandExecutor{
 		image = pa.convertToBufferedImage(image.getScaledInstance(image.getWidth() * 5, image.getHeight() * 5, Image.SCALE_SMOOTH));
 		try {
 			ImageIO.write(image, "TIFF", new File("." + File.separator + "test" + File.separator + "YAxis.tiff"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void getLegendTitleString(BufferedImage legendTitleImage) {
+		legendTitleImage = pa.resizeImage(legendTitleImage, 5, 5, false);
+		BufferedImage image = pa.otsu(pa.getGray(legendTitleImage), legendTitleImage.getWidth(), legendTitleImage.getHeight());
+		image = pa.convertToBufferedImage(image.getScaledInstance(image.getWidth() * 5, image.getHeight() * 5, Image.SCALE_SMOOTH));
+		try {
+			ImageIO.write(image, "TIFF", new File("." + File.separator + "test" + File.separator + "LegendTitle.tiff"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void getLegendNameString(BufferedImage legendNameImage, int number) {
+		legendNameImage = pa.resizeImage(legendNameImage, 5, 5, false);
+		BufferedImage image = pa.otsu(pa.getGray(legendNameImage), legendNameImage.getWidth(), legendNameImage.getHeight());
+		image = pa.convertToBufferedImage(image.getScaledInstance(image.getWidth() * 5, image.getHeight() * 5, Image.SCALE_SMOOTH));
+		try {
+			ImageIO.write(image, "TIFF", new File("." + File.separator + "test" + File.separator + "LegendName" + number + ".tiff"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
