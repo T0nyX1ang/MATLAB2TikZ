@@ -6,6 +6,7 @@ This is an Java assignment which converts MATLAB plots to TikZ pictures.
 * Generating TikZ documents using the imported picture.
 * Viewing TikZ files(\*.tikz) by adding something to it and compile it using pdflatex/xelatex.
 * Automatically generation and preview mode.
+* Classifying pictures with multiple datasets.
 
 ## Dependecies:
 * LaTeX compiler: xelatex or pdflatex in your $PATH.
@@ -13,8 +14,14 @@ This is an Java assignment which converts MATLAB plots to TikZ pictures.
 
 ## Update Notes:
 
+### Version 0.2.0
+* Add support for multiple dataset detection and classification.
+* Change the algorithm to 'filter' the picture by color.
+* Add a feature to show a red border in 'Data Config' menu to show input errors clearly.
+* Add a feature to reset the data while importing a new picture.
+
 ### Version 0.1.5-alpha
-* Add a *testing* feature to detect and  classify legends inside the picture. (**Some additional files will be generated.**)
+* Add a **testing** feature to detect and  classify legends inside the picture. (**Some additional files will be generated.**)
 * Fix a bug in Preview TikZ part.
 * Add a feature to let the program accept pictures without X, Y Labels.
 * Add some algorithms to 'filter' the picture by color.
