@@ -2,6 +2,8 @@ import java.awt.Color;
 import java.awt.image.*;
 import java.io.*;
 
+import javax.imageio.ImageIO;
+
 public class PictureUtils extends PictureAlgorithms{
 	// Control constants
 	private final double CTRL_ACPT = 0.7;
@@ -22,16 +24,15 @@ public class PictureUtils extends PictureAlgorithms{
 	BufferedImage yStepOrig = null;
 	BufferedImage MainDataOrig = null;
 	BufferedImage legendDataOrig = null;
-	BufferedImage MainData = null;
 	// Data detailed characteristics
 	private int originX = 0;
 	private int originY = 0;
+	private double[][] dataMatrix;
 	// default parameters
 	boolean isXGrid = false;
 	boolean isYGrid = false;
-	String dataString = "";
 	// legend parameters
-	int legendCount = 0;
+	private int legendCount = 0;
 	int[] legendColor = new int[LEGEND_ELEM_LIMIT];
 	BufferedImage[] legendNameOrig = new BufferedImage[LEGEND_ELEM_LIMIT];
 	BufferedImage legendTitleOrig = null;
@@ -262,11 +263,8 @@ public class PictureUtils extends PictureAlgorithms{
 	void getLegend(BufferedImage image) {
 		int height = image.getHeight();
 		int width = image.getWidth();
-		int nowRed = (int) (image.getRGB(0, 1) >> 16) & 0xFF;
-		int nowGreen = (int) (image.getRGB(0, 1) >> 8) & 0xFF;
-		int nowBlue = (int) (image.getRGB(0, 1) >> 0) & 0xFF;
-		int colorgray = getGray(nowRed, nowGreen, nowBlue);
-		BufferedImage otsuResult = otsu(getGray(image, colorgray), width, height);
+		int colorRGB = image.getRGB(0, 1);
+		BufferedImage otsuResult = otsu(getGray(image, colorRGB), width, height);
 		BufferedImage clearResult = clearAxisTicks(getGray(otsuResult), width, height);
 		int[][] imagegray = getGray(clearResult);
 		for (int i = 1; i < width - 1; i++)
@@ -322,6 +320,10 @@ public class PictureUtils extends PictureAlgorithms{
 	}
 	
 	void getLegendData(BufferedImage image) {
+		if (image == null) {
+			legendCount = 0;
+			return;
+		}
 		int legendHeight = image.getHeight();
 		int legendWidth = image.getWidth();
 		int sepLine = 0;
@@ -381,27 +383,46 @@ public class PictureUtils extends PictureAlgorithms{
 			if (endY - startY > 1) {
 				legendNameOrig[legendCount] = cropImage(image, endX + 1, legendWidth - 1, startY, endY + 1);
 				for (int k = startY; k < endY; k++)
-					if (gray[(startX + endX) / 2][k] != 255)
-						legendColor[legendCount] = gray[(startX + endX) / 2][k];
+					if (gray[(startX + endX) / 2][k] != 255) {
+						legendColor[legendCount] = image.getRGB((startX + endX) / 2, k);
+					}
 				legendCount++;
 			}
 		}
-		
 	}
 	
-	String getData(BufferedImage image, double xStart, double xStop, double yStart, double yStop) {
+	void getDataMatrix(BufferedImage image) {
+		int dataWidth = image.getWidth();
+		if (legendCount == 0) {
+			dataMatrix = new double[1][dataWidth];
+			getData(image, legendCount);
+		}
+		else {
+			dataMatrix = new double[legendCount][dataWidth];
+			for (int i = 0; i < legendCount; i++)
+				getData(image, i);
+		}
+	}
+	
+	private void getData(BufferedImage image, int count) {
 		int dataHeight = image.getHeight();
 		int dataWidth = image.getWidth();
-		String sep = System.lineSeparator();
-		String dataString = "";
-		int[][] dataGray = getGray(image);
+		int[][] dataGray;
+		if (count == 0 && legendCount == 0)
+			dataGray = getGray(image);
+		else
+			dataGray = getGray(image, legendColor[count]);
 		BufferedImage otsuResult = otsu(dataGray, dataWidth, dataHeight);
 		dataGray = getGray(otsuResult);
 		BufferedImage clearResult = clearAxisTicks(dataGray, dataWidth, dataHeight);
 		dataGray = getGray(clearResult);
 		BufferedImage hilditchResult = hilditch(dataGray, dataWidth, dataHeight);
-		MainData = hilditchResult;
-		dataGray = getGray(MainData);
+		dataGray = getGray(hilditchResult);
+		try {
+			ImageIO.write(hilditchResult, "TIFF", new File("." + File.separator + "test" + File.separator + "Dataset" + (count + 1) + ".tiff"));
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
 		for (int i = 0; i < dataWidth; i++) {
 			int dirY = dataHeight - 1;
 			while (dataGray[i][dirY] == 255) {
@@ -410,17 +431,36 @@ public class PictureUtils extends PictureAlgorithms{
 					break;
 			}
 			int startY = dirY;
-			if (startY == -1) 
+			if (startY == -1) {
+				dataMatrix[count][i] = -1;
 				continue;
+			}
 			while (dataGray[i][dirY] == 0) {
 				dirY--;
 				if (dirY == -1)
 					break;
 			}
 			int endY = dirY + 1;
-			double dataX = (double) xStart + (xStop - xStart) / dataWidth * i;
-			double dataY = (double) yStart + (yStop - yStart) / dataHeight * (dataHeight - (double) (startY + endY) / 2);
-			dataString = dataString + "    " + dataX + ", " + dataY + " " + sep;
+			dataMatrix[count][i] = (double) (startY + endY) / 2;
+		}
+	}
+	
+	private String getDataString(double[][] dataMatrix, double xStart, double xStop, 
+														double yStart, double yStop) {
+		int dataHeight = MainDataOrig.getHeight();
+		int dataWidth = MainDataOrig.getWidth();		
+		String dataString = "";
+		String sep = System.lineSeparator();
+		if (legendCount == 0) {
+			for (int i = 0; i < dataMatrix[0].length; i++) {
+				if (dataMatrix[0][i] >= 0) {
+					double dataX = (double) xStart + (xStop - xStart) / dataWidth * i;
+					double dataY = (double) yStart + (yStop - yStart) / dataHeight * (dataHeight - dataMatrix[0][i]);
+					dataString = dataString + "    " + dataX + ", " + dataY + " " + sep;
+				}
+			}
+		} else {
+			
 		}
 		return dataString;
 	}
@@ -431,7 +471,7 @@ public class PictureUtils extends PictureAlgorithms{
 					  String xLabel, String yLabel,
 					  boolean isXGrid, boolean isYGrid,
 					  File file) {
-		dataString = getData(MainDataOrig, xStart, xStop, yStart, yStop);
+		String dataString = getDataString(dataMatrix, xStart, xStop, yStart, yStop);
 		String sep = System.lineSeparator();
 		// setting grids
 		String xGridOpen = "%";

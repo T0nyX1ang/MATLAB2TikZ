@@ -20,7 +20,7 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 		}
 	}
 	
-	private final String VERSION_NUMBER = "0.1.5-alpha";
+	private final String VERSION_NUMBER = "0.1.6-beta";
 	private JLabel guideline = new JLabel("Guidelines: " +
 										  "(1) Import the picture. " +  
 										  "(2) Setting the data. " +
@@ -250,20 +250,7 @@ public class MATLAB2TikZ extends JFrame implements ActionListener{
 			isYGrid = pu.isYGrid;
 			pu.getLegend(pu.MainDataOrig);
 			pu.getLegendData(pu.legendDataOrig);
-
-			try {
-				if (pu.legendTitleOrig != null)
-					ImageIO.write(pu.legendTitleOrig, "TIFF", new File("." + File.separator + "test" + File.separator + "LegendTitle.tiff"));
-				else {
-					System.out.println("Legend title doesn't exist.");
-				}
-				for (int i = 0; i < pu.legendCount; i++) {
-					System.out.print(pu.legendColor[i] + " ");
-					ImageIO.write(pu.legendNameOrig[i], "TIFF", new File("." + File.separator + "test" + File.separator + "LegendName-" + i + ".tiff"));
-				}
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
+			pu.getDataMatrix(pu.MainDataOrig);
 			
 			// Using automatically generated data (PENDING)
 			if ((xStop == xStart) || (xStep == 0) || 

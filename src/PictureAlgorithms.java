@@ -4,7 +4,8 @@ import java.awt.image.*;
 
 public class PictureAlgorithms {
 	// These utilities are under development now. They are algorithms.
-
+	private int PIVOT_RGB = 4096;
+	
 	public BufferedImage convertToBufferedImage(Image image) {
 		BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), 
 														image.getHeight(null), 4);
@@ -14,27 +15,37 @@ public class PictureAlgorithms {
 		return bufferedImage;
 	}
 	
+	public int getPivotRGB() {
+		// Reserved for future adjustments
+		return PIVOT_RGB;
+	}
+	
+	public void setPivotRGB(int newRGB) {
+		// Reserved for future adjustments
+		PIVOT_RGB = newRGB;
+	}
+	
 	public int getGray(int red, int green, int blue) {
 		return (int) Math.pow((Math.pow(red, 2.2) * 0.2973 + 
 				 	 Math.pow(green, 2.2)* 0.6274 + 
 				 	 Math.pow(blue, 2.2) * 0.0753), 1 / 2.2);
 	}
 	
-	public int getGray(int red, int green, int blue, int oscilator) {
+	public int getGray(int srcRGB, int destRGB) {
 		// Filter mode.
-		if ((oscilator < 0) || (oscilator > 255))
-			return getGray(red, green, blue);
-		else {
-			int ans = (int) getGray(red, green, blue) ^ oscilator;
-			if (ans < 5) {
-				ans = (ans * 1) & 255;
-			} else if (ans < 20) {
-				ans = (ans * 5) & 255;
-			} else {
-				ans = 255;
-			}
-			return ans;
-		}
+		int srcRed = (int) (srcRGB >> 16) & 0xFF;
+		int srcGreen = (int) (srcRGB >> 8) & 0xFF;
+		int srcBlue = (int) (srcRGB >> 0) & 0xFF;
+		int destRed = (int) (destRGB >> 16) & 0XFF;
+		int destGreen = (int) (destRGB >> 8) & 0xFF;
+		int destBlue = (int) (destRGB >> 0) & 0xFF;
+		int distance = (srcRed - destRed) * (srcRed - destRed) +
+					   (srcGreen - destGreen) * (srcGreen - destGreen) +
+					   (srcBlue - destBlue) * (srcBlue - destBlue);
+		if (distance <= PIVOT_RGB) {
+			return getGray(srcRed, srcGreen, srcBlue) ^ getGray(destRed, destGreen, destBlue);
+		} else
+			return 0xFF;
 	}
 	
 	public int[][] getGray(BufferedImage image) {
@@ -52,16 +63,13 @@ public class PictureAlgorithms {
 		return gray;
 	}
 	
-	public int[][] getGray(BufferedImage image, int colorgray) {
+	public int[][] getGray(BufferedImage image, int RGB) {
 		int width = image.getTileWidth();
 		int height = image.getHeight();
 		int[][] gray = new int[width][height];
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
-				int nowRed = (int) (image.getRGB(i, j) >> 16) & 0xFF;
-				int nowGreen = (int) (image.getRGB(i, j) >> 8) & 0xFF;
-				int nowBlue = (int) (image.getRGB(i, j) >> 0) & 0xFF;
-				gray[i][j] = getGray(nowRed, nowGreen, nowBlue, colorgray);
+				gray[i][j] = getGray(image.getRGB(i, j), RGB);
 			}
 		}
 		return gray;
@@ -301,7 +309,7 @@ public class PictureAlgorithms {
 	}
 	
 	public BufferedImage resizeImage(BufferedImage image, int xBound, int yBound, boolean rotate) {
-		// *Bound : boundary of *.
+		// x (or y)Bound : boundary of x (or y).
 		// -1 if don't crop from this direction.
 		// 0 if doing a full crop.
 		// x > 0, will make a x pixels whitespace if possible.
